@@ -1,0 +1,9 @@
+node_modules
+.env
+.expo
+.next
+dist
+.turbo
+out
+build
+*.log
