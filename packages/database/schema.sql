@@ -70,3 +70,17 @@ CREATE POLICY "Profiles are viewable by everyone." ON public.profiles FOR SELECT
 CREATE POLICY "Users can update own profile." ON public.profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Artisans are viewable by everyone." ON public.artisans FOR SELECT USING (true);
 CREATE POLICY "Artisans can update own info." ON public.artisans FOR UPDATE USING (auth.uid() = id);
+
+-- 6. Reviews
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  worker_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  customer_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Reviews are viewable by everyone." ON public.reviews FOR SELECT USING (true);
+CREATE POLICY "Customers can create reviews." ON public.reviews FOR INSERT WITH CHECK (auth.uid() = customer_id);
